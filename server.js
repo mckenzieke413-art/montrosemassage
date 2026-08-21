@@ -175,7 +175,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // ==========================================
 async function handleBookingSubmission(req, res) {
     try {
-        const { serviceType, amount, currency, promoCode, date, timeSlot, fullName, email, phone } = req.body;
+        const { serviceType, amount, currency, promoCode, date, timeSlot, fullName, email, phone, preferredTherapist } = req.body;
         const priceInfo = calculateFinalPrice(amount, currency, promoCode);
         const bookingId = 'MM-' + crypto.randomInt(100000, 999999);
 
@@ -195,6 +195,7 @@ async function handleBookingSubmission(req, res) {
                 const clientEmail = email;
                 const clientName = escapeHtml(fullName || 'Valued Client');
                 const safeService = escapeHtml(serviceType || 'In-Home Massage');
+                const safeTherapist = escapeHtml(preferredTherapist || 'Any Available Specialist');
                 const safeDate = escapeHtml(date || 'To be selected');
                 const safeTime = escapeHtml(timeSlot || 'Standard Slot');
 
@@ -214,6 +215,10 @@ async function handleBookingSubmission(req, res) {
                         <tr>
                             <td style="color: #94a3b8; border-bottom: 1px solid #1e293b;">Selected Treatment:</td>
                             <td style="color: #f8fafc; font-weight: 600; text-align: right; border-bottom: 1px solid #1e293b;">${safeService}</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #94a3b8; border-bottom: 1px solid #1e293b;">Requested Therapist:</td>
+                            <td style="color: #f8fafc; font-weight: 600; text-align: right; border-bottom: 1px solid #1e293b;">${safeTherapist}</td>
                         </tr>
                         <tr>
                             <td style="color: #94a3b8; border-bottom: 1px solid #1e293b;">Date & Time:</td>
@@ -427,6 +432,15 @@ app.get('/index.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Therapist profile & review routes
+app.get('/therapist-profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'therapist-profile.html'));
+});
+
+app.get('/therapist-profile.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'therapist-profile.html'));
+});
+
 app.get('/payment-success.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'payment-success.html'));
 });
@@ -448,6 +462,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT,'0.0.0.0',() => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running live on http://localhost:${PORT}`);
 });
